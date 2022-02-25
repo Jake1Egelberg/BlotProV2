@@ -1,0 +1,15 @@
+PARM: STATUS
+
+RunID: TEST
+
+FindWithMean: TRUE
+
+HeightBwBands: 4
+
+WidthBwBands: 6
+
+Alpha: 0.05
+
+Sample: 100
+
+
