@@ -144,7 +144,7 @@ for(sel_file in file){
     setwd(debug_dir)
     png("1_DistributionCheck.png")
     #Check normal distribution
-    hist(means,main=NULL,xlab="Sample Means (j=1000, n=500)")
+    hist(means,main=NULL,xlab="Sample Means (j=5000, n=5000)")
     title(main=paste("Sampling Distribution of Sample Means\nShapiro p=",round(shapiro.test(means)$p.value,digits=3),sep=""))
     abline(v=upper_mean,col="red")
     text(x=upper_mean*1.04,y=50,paste("p<",round(real_alpha,digits=3),"\nMean>",round(upper_mean,digits=3),sep=""),col="red",adj=0)
