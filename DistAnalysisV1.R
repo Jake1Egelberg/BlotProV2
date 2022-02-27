@@ -250,7 +250,7 @@ for(sel_file in file){
       
       width=abs(a-b)
       
-      if(width>band_width){
+      if(width>band_width&&is.na(width)==FALSE&&length(width)>0){
         object_count_2<-object_count_2+1
       }
       obj_num_2<-c(obj_num_2,object_count_2)
