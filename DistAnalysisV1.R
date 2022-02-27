@@ -109,50 +109,50 @@ for(sel_file in file){
   #Only get objects for cycle 1
   if(cycle==1){
   
-  #------------------------------------------------
-  #------GENERATE DISTRIBUTION---------------------
-  #------------------------------------------------
-  
-  #By central limit theorem, sampling distribution of sample means are ~normally distributed
-  means<-c()
-  for(i in 1:1000){
-    x<-sample(colvec_data$Index,size=500)
-    sampled<-colvec_data[x,]
-    sample_mean<-mean(sampled$Signal)
-    means<-c(means,sample_mean)
-  }
-  
-  #Get cumulative probability
-  mean_frame<-as.data.frame(table(means))
-  mean_frame$means<-as.numeric(as.character(mean_frame$means))
-  mean_frame$Prob<-mean_frame$Freq/sum(mean_frame$Freq)
-  mean_frame$CumProb<-NA
-  
-  for(i in 1:length(mean_frame$means)){
-    x<-subset(mean_frame,means<=mean_frame[i,]$means)
-    mean_frame[i,]$CumProb<-sum(x$Prob)
-  }
-  
-  #Get upper lim, alpha=0.05
-  upper_mean<-mean_frame[max(which(mean_frame$CumProb<=(1-alpha)+alpha/10)),]$means
-  real_alpha<-1-mean_frame[max(which(mean_frame$CumProb<=(1-alpha)+alpha/10)),]$CumProb
-  
-  #Get lower lim, used for background, always a=~0.05
-  lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$means
-  lower_alpha<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$CumProb
-  
-  setwd(debug_dir)
-  png("1_DistributionCheck.png")
-  #Check normal distribution
-  hist(means,main=NULL,xlab="Sample Means (j=1000, n=500)")
-  title(main=paste("Sampling Distribution of Sample Means",sep=""))
-  abline(v=upper_mean,col="red")
-  text(x=upper_mean*1.04,y=50,paste("p<",round(real_alpha,digits=3),"\nMean>",round(upper_mean,digits=3),sep=""),col="red",adj=0)
-  text(x=upper_mean*1.04,y=150,"Band",col="red",adj=0)
-  abline(v=lower_mean,col="blue")
-  text(x=lower_mean/1.04,y=50,paste("p<",round(lower_alpha,digits=3),"\nMean<",round(lower_mean,digits=3),sep=""),col="blue",adj=1)
-  text(x=lower_mean/1.04,y=150,"Background",col="blue",adj=1)
-  dev.off()
+    #------------------------------------------------
+    #------GENERATE DISTRIBUTION---------------------
+    #------------------------------------------------
+    
+    #By central limit theorem, sampling distribution of sample means are ~normally distributed
+    means<-c()
+    for(i in 1:5000){
+      x<-sample(colvec_data$Index,size=5000)
+      sampled<-colvec_data[x,]
+      sample_mean<-mean(sampled$Signal)
+      means<-c(means,sample_mean)
+    }
+    
+    #Get cumulative probability
+    mean_frame<-as.data.frame(table(means))
+    mean_frame$means<-as.numeric(as.character(mean_frame$means))
+    mean_frame$Prob<-mean_frame$Freq/sum(mean_frame$Freq)
+    mean_frame$CumProb<-NA
+    
+    for(i in 1:length(mean_frame$means)){
+      x<-subset(mean_frame,means<=mean_frame[i,]$means)
+      mean_frame[i,]$CumProb<-sum(x$Prob)
+    }
+    
+    #Get upper lim, alpha=0.05
+    upper_mean<-mean_frame[max(which(mean_frame$CumProb<=(1-alpha)+alpha/10)),]$means
+    real_alpha<-1-mean_frame[max(which(mean_frame$CumProb<=(1-alpha)+alpha/10)),]$CumProb
+    
+    #Get lower lim, used for background, always a=~0.05
+    lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$means
+    lower_alpha<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$CumProb
+    
+    setwd(debug_dir)
+    png("1_DistributionCheck.png")
+    #Check normal distribution
+    hist(means,main=NULL,xlab="Sample Means (j=1000, n=500)")
+    title(main=paste("Sampling Distribution of Sample Means\nShapiro p=",round(shapiro.test(means)$p.value,digits=3),sep=""))
+    abline(v=upper_mean,col="red")
+    text(x=upper_mean*1.04,y=50,paste("p<",round(real_alpha,digits=3),"\nMean>",round(upper_mean,digits=3),sep=""),col="red",adj=0)
+    text(x=upper_mean*1.04,y=150,"Band",col="red",adj=0)
+    abline(v=lower_mean,col="blue")
+    text(x=lower_mean/1.04,y=50,paste("p<",round(lower_alpha,digits=3),"\nMean<",round(lower_mean,digits=3),sep=""),col="blue",adj=1)
+    text(x=lower_mean/1.04,y=150,"Background",col="blue",adj=1)
+    dev.off()
   
   #----Take 1000 samples of 100 px to cover entire image
     #Aggregate all samples w/ mean > upper_mean (p<0.05)
@@ -199,6 +199,8 @@ for(sel_file in file){
   
   band_sets_cur<-subset(band_sets,Signal>split)
   back_sets_cur<-subset(back_data,Signal<mean(back_data$Signal))
+  
+  #plot(band_sets_cur$Col,band_sets_cur$Row,xlim=c(1,100),ylim=c(100,1),cex=0.1)
   
   #Remove duplicates
   bands<-band_sets_cur[-which(duplicated(band_sets_cur$Index)==TRUE),]
