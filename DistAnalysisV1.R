@@ -215,7 +215,7 @@ for(sel_file in file){
   object_count<-1
   band_rows<-as.numeric(levels(as.factor(bands$Row)))
   obj_num<-c()
-  for(i in 2:length(band_rows)){
+  for(i in 1:length(band_rows)){
     #Get previous row
     x<-band_rows[i-1]
     #Get current row
@@ -231,7 +231,7 @@ for(sel_file in file){
     obj_num<-c(object_count,obj_num)
   }
   #Separate obj by row
-  obj_rows<-data.frame(Row=band_rows,Obj=c(1,rev(obj_num)))
+  obj_rows<-data.frame(Row=band_rows,Obj=rev(obj_num))
   
   #Create object database
   obj_database<-data.frame()
@@ -244,7 +244,7 @@ for(sel_file in file){
     object_count_2<-1
     obj_num_2<-c()
     band_cols<-as.numeric(levels(as.factor(obj_data$Col)))
-    for(m in 2:length(band_cols)){
+    for(m in 1:length(band_cols)){
       a<-band_cols[m-1]
       b<-band_cols[m]
       
@@ -255,7 +255,7 @@ for(sel_file in file){
       }
       obj_num_2<-c(obj_num_2,object_count_2)
     }
-    tmp_obj<-data.frame(Col=band_cols,Obj=c(i,obj_num_2))
+    tmp_obj<-data.frame(Col=band_cols,Obj=obj_num_2)
     tmp_obj$ObjID<-paste(levels(as.factor(x$Obj)),"-",tmp_obj$Obj,sep="")
     sep_tmp<-left_join(obj_data,tmp_obj,by="Col")
     obj_database<-rbind(obj_database,sep_tmp)
