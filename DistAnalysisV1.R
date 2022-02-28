@@ -280,7 +280,7 @@ for(sel_file in file){
   gradient<-colorRampPalette(c("red", "yellow3","springgreen2","royalblue"))(length(obj_list))
   setwd(plots_dir)
   png("3a_Objects.png")
-  plot(x=NULL,y=NULL,xlim=c(1,100),ylim=c(100,1),
+  plot(x=NULL,y=NULL,xlim=c(1,100),ylim=c(100,-5),
        ylab="Row",xlab="Col")
   for(i in obj_list){
     x<-subset(obj_database,ObjID==i)
