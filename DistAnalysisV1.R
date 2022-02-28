@@ -136,8 +136,8 @@ for(sel_file in file){
     }
     
     #Get upper lim, alpha=0.05
-    upper_mean<-mean_frame[max(which(mean_frame$CumProb<=(1-alpha)+alpha/10)),]$means
-    real_alpha<-1-mean_frame[max(which(mean_frame$CumProb<=(1-alpha)+alpha/10)),]$CumProb
+    upper_mean<-mean_frame[max(which(mean_frame$CumProb<=(1-alpha))),]$means
+    real_alpha<-1-mean_frame[max(which(mean_frame$CumProb<=(1-alpha))),]$CumProb
     
     #Get lower lim, used for background, always a=~0.05
     lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$means
