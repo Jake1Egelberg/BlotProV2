@@ -323,6 +323,7 @@ for(sel_file in file){
   
   if("ALL"%in%keep_obj){
     proc_data<-obj_database
+    gradient_cur<-gradient
   } else{
     proc_data<-obj_database[which(obj_database$ObjID%in%keep_obj),]
     gradient_cur<-gradient[which(obj_list%in%keep_obj)]
