@@ -177,7 +177,7 @@ for(sel_file in file){
     sse_df<-data.frame()
     for(i in 2:length(band_signals)){
       x<-subset(band_sets,Signal<band_signals[i])
-        x_sse<-sum((x$Signal-mean(x$Signal))^2)
+        x_sse<-sum((x$Signal-mean(x$Signal))^2)/sd(x$Signal)
       y<-subset(band_sets,Signal>=band_signals[i])
         y_sse<-sum((y$Signal-mean(y$Signal))^2)
       tot_sse<-sum(x_sse,y_sse)
