@@ -6,7 +6,8 @@ package.list<-c("magick",
                 "ggplot2",
                 "dplyr",
                 "utils",
-                "tcltk")
+                "tcltk",
+                "RColorBrewer")
 for(i in 1:length(package.list)){
   tryCatch(find.package(package.list[i]),
            error = function(e) install.packages(package.list[i],repos="http://lib.stat.cmu.edu/R/CRAN/"))
@@ -20,6 +21,7 @@ library(ggplot2)
 library(dplyr)
 library(utils)
 library(tcltk)
+library(RColorBrewer)
 
 #Set seed
 set.seed(123)
@@ -171,8 +173,8 @@ for(sel_file in file){
       back_data<-rbind(back_data,sampled)
     }
   }
-  
-  if(use_mean==FALSE){
+
+    if(use_mean==FALSE){
     band_signals<-as.numeric(levels(as.factor(band_sets$Signal)))
     sse_df<-data.frame()
     for(i in 2:length(band_signals)){
@@ -206,6 +208,8 @@ for(sel_file in file){
   bands<-band_sets_cur[-which(duplicated(band_sets_cur$Index)==TRUE),]
   back<-back_sets_cur[-which(duplicated(back_sets_cur$Index)==TRUE),]
   
+  #plot(bands$Col,bands$Row,xlim=c(1,100),ylim=c(100,1))
+  
   #------------------------------------------------
   #-----------IDENTIFY OBJECTS---------------------
   #------------------------------------------------
@@ -224,9 +228,9 @@ for(sel_file in file){
     #Get height
     h<-abs(y-x)
     
-    if(h>band_height){
+    if(h>band_height&&is.na(h)==FALSE&&length(h)>0){
       object_count<-object_count+1
-    }
+    } 
     
     obj_num<-c(object_count,obj_num)
   }
@@ -252,7 +256,8 @@ for(sel_file in file){
       
       if(width>band_width&&is.na(width)==FALSE&&length(width)>0){
         object_count_2<-object_count_2+1
-      }
+      } 
+      
       obj_num_2<-c(obj_num_2,object_count_2)
     }
     tmp_obj<-data.frame(Col=band_cols,Obj=obj_num_2)
@@ -265,15 +270,16 @@ for(sel_file in file){
   
   obj_list<-levels(as.factor(obj_database$ObjID))
   
+ #Plot obj database
+  gradient<-colorRampPalette(c("blue", "orange"))(length(obj_list))
   setwd(plots_dir)
   png("3a_Objects.png")
-  #Plot obj database
   plot(x=NULL,y=NULL,xlim=c(1,100),ylim=c(100,1),
        ylab="Row",xlab="Col")
   for(i in obj_list){
     x<-subset(obj_database,ObjID==i)
-    points(x=x$Col,y=x$Row,cex=0.1)
-    text(x=mean(x$Col),y=min(x$Row),i,col="red")
+    points(x=x$Col,y=x$Row,cex=0.5,col=gradient[which(obj_list%in%i)])
+    text(x=mean(x$Col),y=min(x$Row)-4,i,col=gradient[which(obj_list%in%i)])
   }
   dev.off()
   
@@ -319,6 +325,7 @@ for(sel_file in file){
     proc_data<-obj_database
   } else{
     proc_data<-obj_database[which(obj_database$ObjID%in%keep_obj),]
+    gradient_cur<-gradient[which(obj_list%in%keep_obj)]
   }
   
   metric_data<-left_join(colvec_data,proc_data,by="Index")
@@ -372,6 +379,7 @@ if(length(file)>1){
     geom_line()+
     geom_text(aes(as.factor(Cycle),Signal+4,label=round(Signal,digits=2)),show.legend=FALSE)+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
+    scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
     theme_bw()
   ggsave("4_Signal.png",width=7,height=5)
@@ -382,6 +390,7 @@ if(length(file)>1){
     geom_line()+
     geom_text(aes(as.factor(Cycle),SBR+4,label=round(SBR,digits=2)),show.legend=FALSE)+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
+    scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
     theme_bw()
   ggsave("5_SBR.png",width=7,height=5)
@@ -392,6 +401,7 @@ if(length(file)>1){
     geom_line()+
     geom_text(aes(as.factor(Cycle),BackgroundSignal+4,label=round(BackgroundSignal,digits=2)),show.legend=FALSE)+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
+    scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
     theme_bw()
   ggsave("6_BackgroundSignal.png",width=7,height=5)
