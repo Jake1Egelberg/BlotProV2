@@ -143,19 +143,20 @@ for(sel_file in file){
     lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$means
     lower_alpha<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$CumProb
     
-    setwd(debug_dir)
-    png("1_DistributionCheck.png")
     #Check normal distribution
-    hist(means,main=NULL,xlab="Sample Means (j=5000, n=5000)")
-    title(main=paste("Sampling Distribution of Sample Means\nShapiro p=",round(shapiro.test(means)$p.value,digits=3),sep=""))
-    abline(v=upper_mean,col="red")
-    text(x=upper_mean*1.04,y=50,paste("p<",round(real_alpha,digits=3),"\nMean>",round(upper_mean,digits=3),sep=""),col="red",adj=0)
-    text(x=upper_mean*1.04,y=150,"Band",col="red",adj=0)
-    abline(v=lower_mean,col="blue")
-    text(x=lower_mean/1.04,y=50,paste("p<",round(lower_alpha,digits=3),"\nMean<",round(lower_mean,digits=3),sep=""),col="blue",adj=1)
-    text(x=lower_mean/1.04,y=150,"Background",col="blue",adj=1)
-    dev.off()
-  
+    setwd(debug_dir)
+    qplot(means)+
+      geom_histogram(col="black",fill="skyblue")+
+      ylab("Frequency")+
+      xlab("Sample Mean (j=5000, n=5000)")+
+      ggtitle(paste("Sampling Distribution of Sample Means\nShapiro p=",round(shapiro.test(means)$p.value,digits=3),sep=""))+
+      geom_vline(xintercept=upper_mean,col="red")+
+      geom_text(aes(x=upper_mean,y=200,label=paste("Mean>",round(upper_mean,digits=4),"\np<",round(real_alpha,digits=4),sep="")),hjust=0,nudge_x=0.0001,col="red")+
+      geom_vline(xintercept=lower_mean,col="blue")+
+      geom_text(aes(x=lower_mean,y=200,label=paste("Mean<",round(lower_mean,digits=4),"\np<",round(lower_alpha,digits=4),sep="")),hjust=1,nudge_x=-0.0001,col="blue")+
+      theme_bw()
+    ggsave("1_DistributionCheck.png",width=7,height=5)
+    
   #----Take 1000 samples of 100 px to cover entire image
     #Aggregate all samples w/ mean > upper_mean (p<0.05)
     #Remove px w/ signal below mean of aggregates samples
@@ -194,10 +195,15 @@ for(sel_file in file){
   
   #Plot mean cutoff
   setwd(debug_dir)
-  png("2_BandDataDistributionCheck.png")
-  hist(band_sets$Signal,main="Significant Sample Signal Distribution",xlab=paste("Signal (samples from j=1000, n=",sample_size,")",sep=""),ylab="Frequency")
-  abline(v=split,col="red")
-  dev.off()
+  qplot(band_sets$Signal)+
+    geom_histogram(col="black",fill="skyblue")+
+    geom_vline(xintercept=split,col="red")+
+    xlab("Signal")+
+    ylab("Frequency")+
+    ggtitle("Significant Sample Signal Distribution")+
+    geom_text(aes(x=split,y=10000,label=paste("Split=",round(split,digits=2),sep="")),nudge_x=0.01,hjust=0,col="red")+
+    theme_bw()
+  ggsave("2_BandDataDistributionCheck.png",width=7,height=5)
   
   band_sets_cur<-subset(band_sets,Signal>split)
   back_sets_cur<-subset(back_data,Signal<mean(back_data$Signal))
@@ -271,7 +277,7 @@ for(sel_file in file){
   obj_list<-levels(as.factor(obj_database$ObjID))
   
  #Plot obj database
-  gradient<-colorRampPalette(c("blue", "orange"))(length(obj_list))
+  gradient<-colorRampPalette(c("red", "yellow3","springgreen2","royalblue"))(length(obj_list))
   setwd(plots_dir)
   png("3a_Objects.png")
   plot(x=NULL,y=NULL,xlim=c(1,100),ylim=c(100,1),
