@@ -364,14 +364,12 @@ for(sel_file in file){
   #Add to df
   obj_metrics$BackgroundSignal<-back_signal
   obj_metrics$B<-round(obj_metrics$Area*back_Imean,digits=3)
-  obj_metrics$SBR<-round(obj_metrics$Signal/obj_metrics$B,digits=3)
   
   #Order output
   ordered_metrics<-data.frame(Cycle=obj_metrics$Cycle,
                               Object=obj_metrics$Object,
                               RawSignal=round(obj_metrics$Signal,digits=3),
                               BackgroundSignal=obj_metrics$BackgroundSignal,
-                              SBR=obj_metrics$SBR,
                               Area=obj_metrics$Area,
                               B=obj_metrics$B)
   
@@ -380,12 +378,20 @@ for(sel_file in file){
   cycle<-cycle+1
 }
 
+#Curate obj metrics
 all_obj_metrics$Object<-paste("ID: ",all_obj_metrics$Object,sep="")
+
+#Calculate background-adj signal
 all_obj_metrics$Signal<-all_obj_metrics$RawSignal-all_obj_metrics$B
+
+#Calculate SBR
+all_obj_metrics$SBR<-round(all_obj_metrics$Signal/all_obj_metrics$B,digits=3)
+
+#Add rel_sig if needed
 all_obj_metrics$RelSig<-NA
 
 #Reorder columns
-all_obj_metrics<-all_obj_metrics[,c(1,2,9,3,4,5,6,7,8)]
+all_obj_metrics<-all_obj_metrics[,c(1,2,7,9,3,4,5,6,8)]
 
 if(length(file)>1){
   
