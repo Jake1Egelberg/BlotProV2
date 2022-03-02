@@ -26,6 +26,9 @@ library(RColorBrewer)
 #Set seed
 set.seed(123)
 
+#Set image to be X by X px
+img_size<-100
+
 dir<-this.dir()
 
 #Load parms
@@ -73,7 +76,7 @@ for(sel_file in file){
   
   #Convert image to png and resize to 100x100 px, ignore aspect ratio
   img_conv<-image_convert(x,format="png",colorspace="gray")
-  img_res<-image_scale(img_conv,"100x100!")
+  img_res<-image_scale(img_conv,paste(img_size,"x",img_size,"!",sep=""))
   
   #Ensure image is 8 bits
   img_quant<-image_quantize(img_res,max=256)
@@ -84,12 +87,12 @@ for(sel_file in file){
   img_png<-readPNG(paste(dir,"/ProcBands/PROCESSED_",sel_file,"_TEST.png",sep=""))
   
   #Number rows and col 1:100
-  rownames(img_png)<-1:100
-  colnames(img_png)<-1:100
+  rownames(img_png)<-1:img_size
+  colnames(img_png)<-1:img_size
   
   #Get vector of px brightness values with corresponding pixel position
   colvec<-c()
-  for(i in 1:100){
+  for(i in 1:img_size){
     colvec<-c(colvec,as.vector(img_png[i,]))
   }
   
@@ -98,15 +101,15 @@ for(sel_file in file){
   
   #Identify row for each index
   rowvec<-c()
-  for(i in 1:100){
-    tmpvec<-rep(i,times=100)
+  for(i in 1:img_size){
+    tmpvec<-rep(i,times=img_size)
     rowvec<-c(rowvec,tmpvec)
   }
   colvec_data$Row=rowvec
   
   #Identify column for each index
-  coln<-c(1:10)
-  colvec_data$Col=rep(1:100,times=100)
+  coln<-c(1:(img_size/10))
+  colvec_data$Col=rep(1:img_size,times=img_size)
   
   #Only get objects for cycle 1
   if(cycle==1){
@@ -117,8 +120,8 @@ for(sel_file in file){
     
     #By central limit theorem, sampling distribution of sample means are ~normally distributed
     means<-c()
-    for(i in 1:5000){
-      x<-sample(colvec_data$Index,size=5000)
+    for(i in 1:(img_size*50)){
+      x<-sample(colvec_data$Index,size=(img_size*50))
       sampled<-colvec_data[x,]
       sample_mean<-mean(sampled$Signal)
       means<-c(means,sample_mean)
@@ -163,7 +166,7 @@ for(sel_file in file){
   
   band_sets<-data.frame()
   back_data<-data.frame()
-  for(i in 1:1000){
+  for(i in 1:(img_size*10)){
     x<-sample(colvec_data$Index,size=sample_size)
     #Get mean of x
     sampled<-colvec_data[x,]
@@ -366,7 +369,7 @@ for(sel_file in file){
   #Order output
   ordered_metrics<-data.frame(Cycle=obj_metrics$Cycle,
                               Object=obj_metrics$Object,
-                              Signal=round(obj_metrics$Signal,digits=3),
+                              RawSignal=round(obj_metrics$Signal,digits=3),
                               BackgroundSignal=obj_metrics$BackgroundSignal,
                               SBR=obj_metrics$SBR,
                               Area=obj_metrics$Area,
@@ -378,8 +381,26 @@ for(sel_file in file){
 }
 
 all_obj_metrics$Object<-paste("ID: ",all_obj_metrics$Object,sep="")
+all_obj_metrics$Signal<-all_obj_metrics$RawSignal-all_obj_metrics$B
+all_obj_metrics$RelSig<-NA
+
+#Reorder columns
+all_obj_metrics<-all_obj_metrics[,c(1,2,9,3,4,5,6,7,8)]
 
 if(length(file)>1){
+  
+  #Get relative signal
+  for(i in obj_list){
+    tmp_id<-paste("ID: ",i,sep="")
+    x<-subset(all_obj_metrics,Object==tmp_id)
+    for(m in x$Cycle){
+      y<-subset(x,Cycle==m)
+      rel_sig<-round(y$Signal/x$Signal[1],digits=2)
+      all_obj_metrics[which(all_obj_metrics$Object==tmp_id&all_obj_metrics$Cycle==m),]$RelSig<-rel_sig
+    }
+  }
+  
+  
   setwd(plots_dir)
   ggplot(all_obj_metrics,aes(as.factor(Cycle),Signal,color=Object,group=Object))+
     geom_point()+
@@ -412,10 +433,22 @@ if(length(file)>1){
     xlab("Cycle")+
     theme_bw()
   ggsave("6_BackgroundSignal.png",width=7,height=5)
+  
+  setwd(plots_dir)
+  ggplot(all_obj_metrics,aes(as.factor(Cycle),RelSig,color=Object,group=Object))+
+    geom_point()+
+    geom_line()+
+    geom_text(aes(as.factor(Cycle),RelSig+0.05,label=round(RelSig,digits=2)),show.legend=FALSE)+
+    scale_y_continuous(limits=c(0,1.1),n.breaks=10)+
+    scale_color_manual(values=gradient_cur)+
+    xlab("Cycle")+
+    theme_bw()
+  ggsave("7_RelativeSignal.png",width=7,height=5)
+  
 }
 
 setwd(plots_dir)
-write.csv(all_obj_metrics,"7_Metrics.csv",row.names = FALSE)
+write.csv(all_obj_metrics,"8_Metrics.csv",row.names = FALSE)
 write.table(parms,"Parms.txt")
 
 #Open run
