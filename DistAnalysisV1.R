@@ -280,14 +280,14 @@ for(sel_file in file){
   obj_list<-levels(as.factor(obj_database$ObjID))
   
  #Plot obj database
-  gradient<-colorRampPalette(c("red", "yellow3","springgreen2","royalblue"))(length(obj_list))
+  gradient<-colorRampPalette(c("yellow3", "darkorange","orangered","mediumpurple2","royalblue","black"))(length(obj_list))
   setwd(plots_dir)
   png("3a_Objects.png")
   plot(x=NULL,y=NULL,xlim=c(1,100),ylim=c(100,-3),
        ylab="Row",xlab="Col")
   for(i in obj_list){
     x<-subset(obj_database,ObjID==i)
-    points(x=x$Col,y=x$Row,cex=0.5,col=gradient[which(obj_list%in%i)])
+    points(x=x$Col,y=x$Row,cex=1.5,pch=19,col=gradient[which(obj_list%in%i)])
     text(x=mean(x$Col),y=min(x$Row)-4,i,col=gradient[which(obj_list%in%i)])
   }
   dev.off()
