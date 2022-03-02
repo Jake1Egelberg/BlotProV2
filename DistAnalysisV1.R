@@ -448,6 +448,7 @@ if(length(file)>1){
     scale_y_continuous(limits=c(0,1.1),n.breaks=10)+
     scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
+    ylab("Relative Signal")+
     theme_bw()
   ggsave("7_RelativeSignal.png",width=7,height=5)
   
