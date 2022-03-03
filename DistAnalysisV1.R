@@ -42,6 +42,7 @@ alpha<-as.numeric(str_trim(parms[which(parms$V1=="Alpha"),]$V2))
 use_mean<-as.logical(str_trim(parms[which(parms$V1=="FindWithMean"),]$V2))
 run_id<-as.character(str_trim(parms[which(parms$V1=="RunID"),]$V2))
 sample_size<-as.numeric(str_trim(parms[which(parms$V1=="Sample"),]$V2))
+skew_status<-as.logical(str_trim(parms[which(parms$V1=="Skew"),]$V2))
 
 save_obj<-tclVar("ALL")
 
@@ -80,6 +81,7 @@ for(sel_file in file){
   
   #Ensure image is 8 bits
   img_quant<-image_quantize(img_res,max=256)
+  #img_quant<-image_modulate(img_quant,brightness=200)
   
   #Save as png and reload with png package
   setwd(paste(dir,"/ProcBands/",sep=""))
@@ -143,8 +145,8 @@ for(sel_file in file){
     real_alpha<-1-mean_frame[max(which(mean_frame$CumProb<=(1-alpha))),]$CumProb
     
     #Get lower lim, used for background, always a=~0.05
-    lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$means
-    lower_alpha<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$CumProb
+    lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.001)),]$means
+    lower_alpha<-mean_frame[max(which(mean_frame$CumProb<=0.001)),]$CumProb
     
     #Check normal distribution
     setwd(debug_dir)
@@ -177,7 +179,12 @@ for(sel_file in file){
       back_data<-rbind(back_data,sampled)
     }
   }
-
+  
+  #Ensure right-skew
+  if(skew_status==TRUE){
+    band_sets<-subset(band_sets,Signal>median(band_sets$Signal))
+  }
+  
     if(use_mean==FALSE){
     band_signals<-as.numeric(levels(as.factor(band_sets$Signal)))
     sse_df<-data.frame()
