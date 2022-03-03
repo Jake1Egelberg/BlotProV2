@@ -2,14 +2,17 @@ PARM: STATUS
 
 RunID: TEST
 
-FindWithMean: TRUE
+FindWithMean: FALSE
 
-HeightBwBands: 4
+HeightBwBands: 3
 
 WidthBwBands: 6
 
 Alpha: 0.05
 
 Sample: 100
+
+Skew: FALSE
+
 
 
