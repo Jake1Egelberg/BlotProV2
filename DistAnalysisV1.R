@@ -191,6 +191,10 @@ for(sel_file in file){
     while(kurtosis(band_sets$Signal)<10){
       band_sets$Signal<-band_sets$Signal*band_sets$Signal
     }
+    
+    while(kurtosis(band_sets$Signal)>20){
+      band_sets$Signal<-sqrt(band_sets$Signal)
+    }
   }
     if(use_mean==FALSE){
     band_signals<-as.numeric(levels(as.factor(band_sets$Signal)))
