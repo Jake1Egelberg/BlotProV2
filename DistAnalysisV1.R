@@ -182,7 +182,7 @@ for(sel_file in file){
   
   #Ensure right-skew
   if(skew_status==TRUE){
-    band_sets<-subset(band_sets,Signal>median(band_sets$Signal))
+    band_sets$Signal<-(band_sets$Signal)^20
   }
   
     if(use_mean==FALSE){
