@@ -186,16 +186,18 @@ for(sel_file in file){
   
   #Ensure right-skew
     #Images taken during wash at Texp=3636 tend to have 10<kurtosis<15
-  
   if(skew_status==TRUE){
-    while(kurtosis(band_sets$Signal)<10){
+    if(og_kurt<10){
+     while(kurtosis(band_sets$Signal)<10){
       band_sets$Signal<-band_sets$Signal*band_sets$Signal
-    }
-    
-    while(kurtosis(band_sets$Signal)>20){
+     }
+    } else if(og_kurt>20){
+     while(kurtosis(band_sets$Signal)>20){
       band_sets$Signal<-sqrt(band_sets$Signal)
+     }
     }
   }
+    
     if(use_mean==FALSE){
     band_signals<-as.numeric(levels(as.factor(band_sets$Signal)))
     sse_df<-data.frame()
