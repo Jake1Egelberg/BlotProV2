@@ -183,7 +183,7 @@ for(sel_file in file){
   }
   
   #Ensure right-skew
-    #Images taken during wash tend to have 10<kurtosis<15
+    #Images taken during wash at Texp=3636 tend to have 10<kurtosis<15
   if(skew_status==TRUE){
     while(kurtosis(band_sets$Signal)<10){
       band_sets$Signal<-band_sets$Signal*band_sets$Signal
