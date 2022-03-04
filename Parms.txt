@@ -12,7 +12,7 @@ Alpha: 0.05
 
 Sample: 100
 
-Skew: FALSE
+Skew: TRUE
 
 
 
