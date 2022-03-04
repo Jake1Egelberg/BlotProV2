@@ -7,7 +7,8 @@ package.list<-c("magick",
                 "dplyr",
                 "utils",
                 "tcltk",
-                "RColorBrewer")
+                "RColorBrewer",
+                "e1071")
 for(i in 1:length(package.list)){
   tryCatch(find.package(package.list[i]),
            error = function(e) install.packages(package.list[i],repos="http://lib.stat.cmu.edu/R/CRAN/"))
@@ -22,6 +23,7 @@ library(dplyr)
 library(utils)
 library(tcltk)
 library(RColorBrewer)
+library(e1071)
 
 #Set seed
 set.seed(123)
@@ -181,10 +183,13 @@ for(sel_file in file){
   }
   
   #Ensure right-skew
+    #Kurtosis cutoff determined by simulations on chi-squared distribution
+    #3rd quartile of kurtosis across differently skewed distributions
   if(skew_status==TRUE){
-    band_sets$Signal<-(band_sets$Signal)^(1/sd(band_sets$Signal))
+    while(kurtosis(band_sets$Signal)<18.07325){
+      band_sets$Signal<-band_sets$Signal*band_sets$Signal
+    }
   }
-  
     if(use_mean==FALSE){
     band_signals<-as.numeric(levels(as.factor(band_sets$Signal)))
     sse_df<-data.frame()
@@ -210,7 +215,7 @@ for(sel_file in file){
     geom_vline(xintercept=split,col="red")+
     xlab("Signal")+
     ylab("Frequency")+
-    ggtitle("Significant Sample Signal Distribution")+
+    ggtitle(paste("Significant Sample Signal Distribution, Kurtosis=",round(kurtosis(band_sets$Signal),digits=2),sep=""))+
     geom_text(aes(x=split,y=10000,label=paste("Split=",round(split,digits=2),sep="")),nudge_x=0.01,hjust=0,col="red")+
     theme_bw()
   ggsave("2_BandDataDistributionCheck.png",width=7,height=5)
