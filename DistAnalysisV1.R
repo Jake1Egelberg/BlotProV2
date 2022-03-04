@@ -182,8 +182,11 @@ for(sel_file in file){
     }
   }
   
+  og_kurt<-kurtosis(band_sets$Signal)
+  
   #Ensure right-skew
     #Images taken during wash at Texp=3636 tend to have 10<kurtosis<15
+  
   if(skew_status==TRUE){
     while(kurtosis(band_sets$Signal)<10){
       band_sets$Signal<-band_sets$Signal*band_sets$Signal
@@ -214,7 +217,7 @@ for(sel_file in file){
     geom_vline(xintercept=split,col="red")+
     xlab("Signal")+
     ylab("Frequency")+
-    ggtitle(paste("Significant Sample Signal Distribution, Kurtosis=",round(kurtosis(band_sets$Signal),digits=2),sep=""))+
+    ggtitle(paste("Significant Sample Signal Distribution, Kurtosis=",round(kurtosis(band_sets$Signal),digits=2),", Og=",round(og_kurt,digits=2),sep=""))+
     geom_text(aes(x=split,y=10000,label=paste("Split=",round(split,digits=2),sep="")),nudge_x=0.01,hjust=0,col="red")+
     theme_bw()
   ggsave("2_BandDataDistributionCheck.png",width=7,height=5)
