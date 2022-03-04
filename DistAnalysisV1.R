@@ -183,10 +183,9 @@ for(sel_file in file){
   }
   
   #Ensure right-skew
-    #Kurtosis cutoff determined by simulations on chi-squared distribution
-    #3rd quartile of kurtosis across differently skewed distributions
+    #Images taken during wash tend to have 10<kurtosis<15
   if(skew_status==TRUE){
-    while(kurtosis(band_sets$Signal)<18.07325){
+    while(kurtosis(band_sets$Signal)<10){
       band_sets$Signal<-band_sets$Signal*band_sets$Signal
     }
   }
