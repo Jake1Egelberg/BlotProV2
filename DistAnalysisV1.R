@@ -189,11 +189,11 @@ for(sel_file in file){
   if(skew_status==TRUE){
     if(og_kurt<10){
      while(kurtosis(band_sets$Signal)<10){
-      band_sets$Signal<-band_sets$Signal*band_sets$Signal
+      band_sets$Signal<-band_sets$Signal^1.1
      }
     } else if(og_kurt>20){
      while(kurtosis(band_sets$Signal)>20){
-      band_sets$Signal<-sqrt(band_sets$Signal)
+      band_sets$Signal<-band_sets$Signal^0.9
      }
     }
   }
