@@ -182,7 +182,7 @@ for(sel_file in file){
   
   #Ensure right-skew
   if(skew_status==TRUE){
-    band_sets$Signal<-(band_sets$Signal)^20
+    band_sets$Signal<-(band_sets$Signal)^(1/sd(band_sets$Signal))
   }
   
     if(use_mean==FALSE){
