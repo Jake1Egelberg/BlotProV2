@@ -589,8 +589,13 @@ if(length(data_logs)>0){
         lm_sum<-summary(lm_model)
         coef<-as.data.frame(lm_sum$coefficients)
         eqt<-paste("y= ",round(coef$Estimate[2],digits=3),"x+",round(coef$Estimate[1],digits=3),sep="")
-        p<-round(pf(lm_sum$fstatistic[1],lm_sum$fstatistic[2],lm_sum$fstatistic[3],lower.tail = TRUE)[[1]],digits=3)
-        rsqr<-round(lm_sum$r.squared,digits=3)
+        
+        high_tail_p<-pf(lm_sum$fstatistic[1],lm_sum$fstatistic[2],lm_sum$fstatistic[3],lower.tail = FALSE)[[1]]
+        low_tail_p<-pf(lm_sum$fstatistic[1],lm_sum$fstatistic[2],lm_sum$fstatistic[3],lower.tail = TRUE)[[1]]
+        p<-round(min(c(high_tail_p,low_tail_p)),digits=4)
+        
+        
+        rsqr<-round(lm_sum$adj.r.squared,digits=3)
         
         tmp_obj<-paste(str_extract_all(i,"[:digit:]")[[1]],collapse="-")
         
