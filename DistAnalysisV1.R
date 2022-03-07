@@ -604,6 +604,21 @@ if(length(data_logs)>0){
       }
     }
   }
+  
+  for(i in vars){
+    x<-subset(sum_stats,Var==i)
+
+    setwd(plots_dir)
+    ggplot(x,aes(x=as.factor(x$Cycle),y=x$Value,group=1))+
+    geom_point()+
+    geom_line()+
+    xlab("Cycle")+
+    scale_y_continuous(limits=c(0,NA),n.breaks=10)+
+    ylab(i)+
+    theme_bw()
+    ggsave(paste("13_",i,".png",sep=""),width=7,height=5)
+}
+  
   #END IF
 }
 
