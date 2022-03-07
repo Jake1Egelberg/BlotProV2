@@ -534,7 +534,7 @@ if(length(data_logs)>0){
     x<-subset(run_data,Cycle==i&fluid=="Ab2")
     for(m in vars){
       y<-x[,which(names(x)%in%m)]
-      tmp<-data.frame(Cycle=i,Var=m,Value=median(y))
+      tmp<-data.frame(Cycle=i,Var=m,Value=mean(y))
       sum_stats<-rbind(sum_stats,tmp)
     }
   }
