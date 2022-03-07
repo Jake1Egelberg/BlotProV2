@@ -529,7 +529,7 @@ if(length(data_logs)>0){
   vars<-c("dP","Q","FlowTemp")
   sum_stats<-data.frame()
   for(i in levels(as.factor(run_data$Cycle))){
-    x<-subset(run_data,Cycle==i)
+    x<-subset(run_data,Cycle==i&fluid=="Ab2")
     for(m in vars){
       y<-x[,which(names(x)%in%m)]
       tmp<-data.frame(Cycle=i,Var=m,Value=median(y))
