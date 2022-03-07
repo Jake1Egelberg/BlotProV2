@@ -549,7 +549,9 @@ if(length(data_logs)>0){
       sum<-summary(fit)
       adj_rsqr<-sum$r.squared
       if(is.null(sum$fstatistic)==FALSE){
-        p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = TRUE)[[1]]
+        high_tail_p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = FALSE)[[1]]
+        low_tail_p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = TRUE)[[1]]
+        p_value<-min(c(high_tail_p_value,low_tail_p_value))
       } else{
         p_value<-1
       }
