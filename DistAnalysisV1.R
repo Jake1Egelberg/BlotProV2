@@ -434,7 +434,7 @@ if(length(file)>1){
   ggplot(all_obj_metrics,aes(as.factor(Cycle),Signal,color=Object,group=Object))+
     geom_point()+
     geom_line()+
-    geom_text(aes(as.factor(Cycle),Signal+4,label=round(Signal,digits=2)),show.legend=FALSE)+
+    geom_text(aes(as.factor(Cycle),Signal*1.05,label=round(Signal,digits=2)),show.legend=FALSE)+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
     scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
@@ -445,7 +445,7 @@ if(length(file)>1){
   ggplot(all_obj_metrics,aes(as.factor(Cycle),SBR,color=Object,group=Object))+
     geom_point()+
     geom_line()+
-    geom_text(aes(as.factor(Cycle),SBR+4,label=round(SBR,digits=2)),show.legend=FALSE)+
+    geom_text(aes(as.factor(Cycle),SBR*1.05,label=round(SBR,digits=2)),show.legend=FALSE)+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
     scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
@@ -456,7 +456,7 @@ if(length(file)>1){
   ggplot(all_obj_metrics,aes(as.factor(Cycle),BackgroundSignal,color=Object,group=Object))+
     geom_point()+
     geom_line()+
-    geom_text(aes(as.factor(Cycle),BackgroundSignal+4,label=round(BackgroundSignal,digits=2)),show.legend=FALSE)+
+    geom_text(aes(as.factor(Cycle),BackgroundSignal*1.05,label=round(BackgroundSignal,digits=2)),show.legend=FALSE)+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
     scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
@@ -467,7 +467,7 @@ if(length(file)>1){
   ggplot(all_obj_metrics,aes(as.factor(Cycle),RelSig,color=Object,group=Object))+
     geom_point()+
     geom_line()+
-    geom_text(aes(as.factor(Cycle),RelSig+0.05,label=round(RelSig,digits=2)),show.legend=FALSE)+
+    geom_text(aes(as.factor(Cycle),RelSig*1.05,label=round(RelSig,digits=2)),show.legend=FALSE)+
     scale_y_continuous(limits=c(0,1.1),n.breaks=10)+
     scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
