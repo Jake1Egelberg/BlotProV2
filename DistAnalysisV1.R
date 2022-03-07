@@ -547,7 +547,7 @@ if(length(data_logs)>0){
       y<-subset(sum_stats,Var==m)
       fit<-lm(x$RelSig~y$Value)
       sum<-summary(fit)
-      adj_rsqr<-sum$r.squared
+      adj_rsqr<-sum$adj.r.squared
       if(is.null(sum$fstatistic)==FALSE){
         high_tail_p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = FALSE)[[1]]
         low_tail_p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = TRUE)[[1]]
@@ -599,7 +599,7 @@ if(length(data_logs)>0){
         ggplot(plot_data,aes(x=VarData,y=RelSig,group=1))+
           geom_point()+
           geom_smooth(method="lm",lwd=0.5)+
-          scale_y_continuous(limits=c(0,1.1),n.breaks=10)+
+          scale_y_continuous(limits=c(0,NA),n.breaks=10)+
           geom_text(aes(x=min(VarData),y=0.1,label=paste(eqt,"\nRsqr= ",rsqr,"\np= ",p,sep="")),hjust=0,col="blue")+
           ylab("Relative Signal")+
           xlab(m)+
