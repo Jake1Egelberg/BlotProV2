@@ -65,7 +65,11 @@ all_obj_metrics<-data.frame()
 raw_files<-as.character(choose.files(multi = TRUE))
 
 #Curate file names
-file<-str_sub(raw_files,start=str_locate_all(raw_files,str_sub(as.Date(Sys.time()),0,4))[[1]][,1][[1]])
+all_files<-str_sub(raw_files,start=str_locate_all(raw_files,str_sub(as.Date(Sys.time()),0,4))[[1]][,1][[1]])
+file<-all_files[str_detect(all_files,".tsv",negate=TRUE)]
+
+#Get .tsv files
+data_logs<-all_files[str_detect(all_files,".tsv",negate=FALSE)]
 
 #Cycle counter increases after each run
 cycle<-1
@@ -124,8 +128,8 @@ for(sel_file in file){
     
     #By central limit theorem, sampling distribution of sample means are ~normally distributed
     means<-c()
-    for(i in 1:(img_size*50)){
-      x<-sample(colvec_data$Index,size=(img_size*50))
+    for(i in 1:(5000)){
+      x<-sample(colvec_data$Index,size=5000)
       sampled<-colvec_data[x,]
       sample_mean<-mean(sampled$Signal)
       means<-c(means,sample_mean)
@@ -170,7 +174,7 @@ for(sel_file in file){
   
   band_sets<-data.frame()
   back_data<-data.frame()
-  for(i in 1:(img_size*10)){
+  for(i in 1:((10*img_size^2)/sample_size)){
     x<-sample(colvec_data$Index,size=sample_size)
     #Get mean of x
     sampled<-colvec_data[x,]
@@ -181,23 +185,22 @@ for(sel_file in file){
       back_data<-rbind(back_data,sampled)
     }
   }
-  
+
   og_kurt<-kurtosis(band_sets$Signal)
   
   #Ensure right-skew
     #Images taken during wash at Texp=3636 tend to have 10<kurtosis<15
+  
   if(skew_status==TRUE){
-    if(og_kurt<10){
-     while(kurtosis(band_sets$Signal)<20){
+    while(kurtosis(band_sets$Signal)<20){
       band_sets$Signal<-band_sets$Signal^1.1
-     }
-    } else if(og_kurt>20){
-     while(kurtosis(band_sets$Signal)>30){
+    }
+    
+    while(kurtosis(band_sets$Signal)>30){
       band_sets$Signal<-band_sets$Signal^0.9
-     }
     }
   }
-    
+  
     if(use_mean==FALSE){
     band_signals<-as.numeric(levels(as.factor(band_sets$Signal)))
     sse_df<-data.frame()
@@ -477,6 +480,132 @@ if(length(file)>1){
 setwd(plots_dir)
 write.csv(all_obj_metrics,"8_Metrics.csv",row.names = FALSE)
 write.table(parms,"Parms.txt")
+
+#-----------ANALYZE DATA LOGS------------------
+
+if(length(data_logs)>0){
+  
+  run_data<-data.frame()
+  for(i in 1:length(data_logs)){
+    log<-data_logs[i]
+    file_path<-paste(str_sub(raw_files[1],end=str_locate_all(raw_files[1],"2022")[[1]][,2][[1]]-4),log,sep="")
+    tmp<-as.data.frame(read.table(file = file_path, sep = '\t', header = FALSE))
+    
+    tmp$Cycle=i
+    run_data<-rbind(run_data,tmp)
+  }
+  names(run_data)<-run_data[1,]
+  names(run_data)[14]<-"Cycle"
+  run_data<-run_data[-1,]
+  
+  run_data$T<-as.double(run_data$T)
+  run_data$fluid<-as.factor(run_data$fluid)
+  run_data$P0<-as.double(run_data$P0)
+  run_data$P1<-as.double(run_data$P1)
+  run_data$flow_temp_0<-as.double(run_data$flow_temp_0)
+  run_data$flow_temp_1<-as.double(run_data$flow_temp_1)
+  run_data$Q0<-as.double(run_data$Q0)
+  run_data$Q1<-as.double(run_data$Q1)
+  run_data$Cycle<-as.numeric(run_data$Cycle)
+  
+  run_data$T<-1:length(run_data$T)
+  
+  #dP, Q and flow temp
+  run_data$dP<-as.numeric(abs(run_data$P1-run_data$P0))
+  run_data$Q<-as.numeric(abs(run_data$Q1-run_data$Q0)/2)
+  run_data$FlowTemp<-as.numeric(abs(run_data$flow_temp_1-run_data$flow_temp_0)/2)
+  
+  setwd(plots_dir)
+  ggplot(run_data,aes(x=T,y=dP,color=fluid))+
+    geom_point()+
+    scale_color_discrete(name="Reagent")+
+    scale_y_continuous(limits=c(0,4),n.breaks=10)+
+    xlab("Time (s)")+
+    ggtitle(run_id)+
+    theme_bw()
+  ggsave("9_RunStats.png",width=7,height=5)
+  
+  #Get medians per cycle
+  vars<-c("dP","Q","FlowTemp")
+  sum_stats<-data.frame()
+  for(i in levels(as.factor(run_data$Cycle))){
+    x<-subset(run_data,Cycle==i)
+    for(m in vars){
+      y<-x[,which(names(x)%in%m)]
+      tmp<-data.frame(Cycle=i,Var=m,Value=median(y))
+      sum_stats<-rbind(sum_stats,tmp)
+    }
+  }
+  
+  #Get regression for each object
+  reg_data<-data.frame()
+  for(i in levels(as.factor(all_obj_metrics$Object))){
+    x<-subset(all_obj_metrics,Object==i)
+    for(m in vars){
+      y<-subset(sum_stats,Var==m)
+      fit<-lm(x$RelSig~y$Value)
+      sum<-summary(fit)
+      adj_rsqr<-sum$r.squared
+      if(is.null(sum$fstatistic)==FALSE){
+        p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = TRUE)[[1]]
+      } else{
+        p_value<-1
+      }
+      tmp<-data.frame(Object=i,
+                      Var=m,
+                      Rsqr=round(adj_rsqr,digits=3),
+                      P_value=round(p_value,digits=3))
+      reg_data<-rbind(reg_data,tmp)
+    }
+  }
+  
+  setwd(plots_dir)
+  write.csv(sum_stats,"10_SummaryStats.csv",row.names = FALSE)
+  write.csv(reg_data,"11_RegressionOutput.csv",row.names = FALSE)
+  
+  if(length(which(reg_data$P_value<0.05))>0){
+  
+  reg_data$Signif<-NA
+  reg_data[which(reg_data$P_value<0.05),]$Signif<-TRUE
+  reg_data[which(reg_data$P_value>=0.05),]$Signif<-FALSE
+  
+  signif_data<-subset(reg_data,Signif==TRUE)
+  
+    for(i in signif_data$Object){
+      x<-subset(signif_data,Object==i)
+      for(m in x$Var){
+        #Get signal data for object
+        met<-subset(all_obj_metrics,Object==i)$RelSig
+        
+        #Get run data for var
+        var_stats<-subset(sum_stats,Var==m)$Value
+        
+        #Get model
+        lm_model<-lm(met~var_stats)
+        lm_sum<-summary(lm_model)
+        coef<-as.data.frame(lm_sum$coefficients)
+        eqt<-paste("y= ",round(coef$Estimate[2],digits=3),"x+",round(coef$Estimate[1],digits=3),sep="")
+        p<-round(pf(lm_sum$fstatistic[1],lm_sum$fstatistic[2],lm_sum$fstatistic[3],lower.tail = TRUE)[[1]],digits=3)
+        rsqr<-round(lm_sum$r.squared,digits=3)
+        
+        tmp_obj<-paste(str_extract_all(i,"[:digit:]")[[1]],collapse="-")
+        
+        setwd(plots_dir)
+        plot_data<-data.frame(RelSig=met,VarData=var_stats)
+        ggplot(plot_data,aes(x=VarData,y=RelSig,group=1))+
+          geom_point()+
+          geom_smooth(method="lm",lwd=0.5)+
+          scale_y_continuous(limits=c(0,1.1),n.breaks=10)+
+          geom_text(aes(x=min(VarData),y=0.1,label=paste(eqt,"\nRsqr= ",rsqr,"\np= ",p,sep="")),hjust=0,col="blue")+
+          ylab("Relative Signal")+
+          xlab(m)+
+          theme_bw()
+        ggsave(paste("12__",tmp_obj,"_",x$Var,".png",sep=""),width=7,height=5)
+      }
+    }
+  }
+  #END IF
+}
 
 #Open run
 shell.exec(plots_dir)
