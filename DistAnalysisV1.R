@@ -490,12 +490,14 @@ if(length(data_logs)>0){
     log<-data_logs[i]
     file_path<-paste(str_sub(raw_files[1],end=str_locate_all(raw_files[1],"2022")[[1]][,2][[1]]-4),log,sep="")
     tmp<-as.data.frame(read.table(file = file_path, sep = '\t', header = FALSE))
-    
+    if(length(which(tmp[1,]%in%"tec_temp"))==0){
+      tmp$V12<-NA
+    }
     tmp$Cycle=i
     run_data<-rbind(run_data,tmp)
   }
   names(run_data)<-run_data[1,]
-  names(run_data)[14]<-"Cycle"
+  names(run_data)[length(names(run_data))]<-"Cycle"
   run_data<-run_data[-1,]
   
   run_data$T<-as.double(run_data$T)
@@ -609,11 +611,11 @@ if(length(data_logs)>0){
     x<-subset(sum_stats,Var==i)
 
     setwd(plots_dir)
-    ggplot(x,aes(x=as.factor(x$Cycle),y=x$Value,group=1))+
+    ggplot(x,aes(x=as.factor(Cycle),y=Value,group=1))+
     geom_point()+
     geom_line()+
     xlab("Cycle")+
-    geom_text(aes(x=as.factor(x$Cycle),y=x$Value*1.05,label=round(x$Value,digits=3)))+
+    geom_text(aes(x=as.factor(Cycle),y=Value*1.05,label=round(Value,digits=3)))+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
     ylab(i)+
     theme_bw()
