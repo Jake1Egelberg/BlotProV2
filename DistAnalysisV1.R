@@ -604,7 +604,7 @@ if(length(data_logs)>0){
           ylab("Relative Signal")+
           xlab(m)+
           theme_bw()
-        ggsave(paste("12__",tmp_obj,"_",x$Var,".png",sep=""),width=7,height=5)
+        ggsave(paste("12__",tmp_obj,"_",m,".png",sep=""),width=7,height=5)
       }
     }
   }
