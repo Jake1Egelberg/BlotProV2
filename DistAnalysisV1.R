@@ -613,6 +613,7 @@ if(length(data_logs)>0){
     geom_point()+
     geom_line()+
     xlab("Cycle")+
+    geom_text(aes(x=as.factor(x$Cycle),y=x$Value*1.05,label=round(x$Value,digits=3)))+
     scale_y_continuous(limits=c(0,NA),n.breaks=10)+
     ylab(i)+
     theme_bw()
