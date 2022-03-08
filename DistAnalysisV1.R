@@ -597,6 +597,9 @@ if(length(data_logs)>0){
         
         #Get regression data
         y<-subset(reg_data,Object==i&Var==m)
+        
+        #Get obj ID
+        obj_name<-paste(str_extract_all(i,"[:digit:]")[[1]],collapse="-")
 
         setwd(plots_dir)
         plot_data<-data.frame(RelSig=met,VarData=var_stats,Rsqr=y$Rsqr,p=y$P_value,eqt=y$Eqt)
@@ -608,7 +611,7 @@ if(length(data_logs)>0){
           ylab("Relative Signal")+
           xlab(m)+
           theme_bw()
-        ggsave(paste("12__",x$Object,"_",m,".png",sep=""),width=7,height=5)
+        ggsave(paste("12__",obj_name,"_",m,".png",sep=""),width=7,height=5)
       }
     }
   }
