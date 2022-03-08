@@ -527,7 +527,7 @@ if(length(data_logs)>0){
     theme_bw()
   ggsave("9_RunStats.png",width=7,height=5)
   
-  #Get medians per cycle
+  #Get means per cycle
   vars<-c("dP","Q","FlowTemp")
   sum_stats<-data.frame()
   for(i in levels(as.factor(run_data$Cycle))){
@@ -547,19 +547,27 @@ if(length(data_logs)>0){
       y<-subset(sum_stats,Var==m)
       fit<-lm(x$RelSig~y$Value)
       sum<-summary(fit)
+      coef<-as.data.frame(sum$coefficients)
       adj_rsqr<-sum$adj.r.squared
+      eqt<-paste("y= ",round(coef$Estimate[2],digits=3),"x+",round(coef$Estimate[1],digits=3),sep="")
       if(is.null(sum$fstatistic)==FALSE){
         high_tail_p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = FALSE)[[1]]
         low_tail_p_value<-pf(sum$fstatistic[1],sum$fstatistic[2],sum$fstatistic[3],lower.tail = TRUE)[[1]]
-        p_value<-min(c(high_tail_p_value,low_tail_p_value))
+        p_value<-round(min(c(high_tail_p_value,low_tail_p_value)),digits=4)
       } else{
         p_value<-1
       }
+      
+      #Bonferonni correct
+      p_value<-p_value*length(vars)
+      
       tmp<-data.frame(Object=i,
                       Var=m,
                       Rsqr=round(adj_rsqr,digits=3),
-                      P_value=round(p_value,digits=3))
+                      P_value=round(p_value,digits=3),
+                      Eqt=eqt)
       reg_data<-rbind(reg_data,tmp)
+      
     }
   }
   
@@ -584,28 +592,16 @@ if(length(data_logs)>0){
         #Get run data for var
         var_stats<-subset(sum_stats,Var==m)$Value
         
-        #Get model
-        lm_model<-lm(met~var_stats)
-        lm_sum<-summary(lm_model)
-        coef<-as.data.frame(lm_sum$coefficients)
-        eqt<-paste("y= ",round(coef$Estimate[2],digits=3),"x+",round(coef$Estimate[1],digits=3),sep="")
-        
-        high_tail_p<-pf(lm_sum$fstatistic[1],lm_sum$fstatistic[2],lm_sum$fstatistic[3],lower.tail = FALSE)[[1]]
-        low_tail_p<-pf(lm_sum$fstatistic[1],lm_sum$fstatistic[2],lm_sum$fstatistic[3],lower.tail = TRUE)[[1]]
-        p<-round(min(c(high_tail_p,low_tail_p)),digits=4)
-        
-        
-        rsqr<-round(lm_sum$adj.r.squared,digits=3)
-        
-        tmp_obj<-paste(str_extract_all(i,"[:digit:]")[[1]],collapse="-")
-        
+        #Get regression data
+        y<-subset(reg_data,Object==i&Var==m)
+
         setwd(plots_dir)
-        plot_data<-data.frame(RelSig=met,VarData=var_stats)
+        plot_data<-data.frame(RelSig=met,VarData=var_stats,Rsqr=y$Rsqr,p=y$P_value,eqt=y$Eqt)
         ggplot(plot_data,aes(x=VarData,y=RelSig,group=1))+
           geom_point()+
           geom_smooth(method="lm",lwd=0.5)+
           scale_y_continuous(limits=c(0,NA),n.breaks=10)+
-          geom_text(aes(x=min(VarData),y=0.1,label=paste(eqt,"\nRsqr= ",rsqr,"\np= ",p,sep="")),hjust=0,col="blue")+
+          geom_text(aes(x=min(VarData),y=0.1,label=paste(eqt,"\nRsqr= ",Rsqr,"\np= ",p,sep="")),hjust=0,col="blue")+
           ylab("Relative Signal")+
           xlab(m)+
           theme_bw()
