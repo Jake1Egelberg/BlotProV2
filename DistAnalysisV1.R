@@ -558,6 +558,8 @@ if(length(data_logs)>0){
         p_value<-1
       }
       
+      raw_p<-p_value
+      
       #Bonferonni correct
       p_value<-p_value*length(vars)
       
@@ -565,6 +567,7 @@ if(length(data_logs)>0){
                       Var=m,
                       Rsqr=round(adj_rsqr,digits=3),
                       P_value=round(p_value,digits=3),
+                      RawP=raw_p,
                       Eqt=eqt)
       reg_data<-rbind(reg_data,tmp)
       
