@@ -468,7 +468,7 @@ if(length(file)>1){
     geom_point()+
     geom_line()+
     geom_text(aes(as.factor(Cycle),RelSig*1.05,label=round(RelSig,digits=2)),show.legend=FALSE)+
-    scale_y_continuous(limits=c(0,1.1),n.breaks=10)+
+    scale_y_continuous(limits=c(0,NA),n.breaks=10)+
     scale_color_manual(values=gradient_cur)+
     xlab("Cycle")+
     ylab("Relative Signal")+
