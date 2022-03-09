@@ -539,6 +539,8 @@ if(length(data_logs)>0){
     }
   }
   
+  if(length(data_logs)>1){
+  
   #Get regression for each object
   reg_data<-data.frame()
   for(i in levels(as.factor(all_obj_metrics$Object))){
@@ -616,6 +618,9 @@ if(length(data_logs)>0){
     }
   }
   
+ #END IF LOGS >1
+ }
+    
   for(i in vars){
     x<-subset(sum_stats,Var==i)
 
