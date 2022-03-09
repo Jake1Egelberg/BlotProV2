@@ -192,11 +192,11 @@ for(sel_file in file){
     #Images taken during wash at Texp=3636 tend to have 10<kurtosis<15
   
   if(skew_status==TRUE){
-    while(kurtosis(band_sets$Signal)<10){
+    while(kurtosis(band_sets$Signal)<20){
       band_sets$Signal<-band_sets$Signal^1.1
     }
     
-    while(kurtosis(band_sets$Signal)>20){
+    while(kurtosis(band_sets$Signal)>30){
       band_sets$Signal<-band_sets$Signal^0.9
     }
   }
