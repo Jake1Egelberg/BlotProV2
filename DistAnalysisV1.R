@@ -151,8 +151,8 @@ for(sel_file in file){
     real_alpha<-1-mean_frame[max(which(mean_frame$CumProb<=(1-alpha))),]$CumProb
     
     #Get lower lim, used for background, always a=~0.05
-    lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.001)),]$means
-    lower_alpha<-mean_frame[max(which(mean_frame$CumProb<=0.001)),]$CumProb
+    lower_mean<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$means
+    lower_alpha<-mean_frame[max(which(mean_frame$CumProb<=0.05)),]$CumProb
     
     #Check normal distribution
     setwd(debug_dir)
